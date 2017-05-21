@@ -142,7 +142,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
         for (int j = 0; j < observations.size(); j++){
 
-            // Step 1: transforms an observed landmark from the particle coordinate system to the map system.
+            // Step 1: transforms observed landmarks from the car's coordinates to the map's coordinates,
+            // in respect to particle[i].
 
             LandmarkObs obs_landmark;
 
@@ -152,7 +153,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
             obs_landmark.y = particles[i].y + observations[j].x * sin(particles[i].theta) +
                              observations[j].y * cos(particles[i].theta);
 
-            // Step 2: find the closet landmark with respect to the observed landmark.
+            // Step 2: associate the transformed landmarks with map landmarks.
 
             default_random_engine gen;
             bernoulli_distribution distribution(0.5);
@@ -174,7 +175,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                 }
             }
 
-            // Step 3: find the weight of a single observed landmark with respect to the closest landmark.
+            // Step 3: calculate the weight of a single observed landmark in respect to the closest landmark if
+            // particle[i] is where the car is.
 
             weight *= 1 / (2.0 * M_PI * std_landmark[0] * std_landmark[1]) *
                       exp(-0.5 * (pow((closest_landmark.x_f - obs_landmark.x), 2) / pow(std_landmark[0], 2) +
@@ -182,6 +184,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
         }
 
+        // Step 4: multiply all the calculated weights togehter to get the final weight. 
         sum_weights += weight;
         particles[i].weight = weight;
     }
