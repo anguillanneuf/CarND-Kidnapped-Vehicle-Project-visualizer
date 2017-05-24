@@ -168,7 +168,10 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
                 double cur_distance = dist(obs_landmark.x, obs_landmark.y, current_landmark.x_f, current_landmark.y_f);
 
-                if(cur_distance < min_distance || (cur_distance == min_distance && distribution(gen))){
+                // add sensor_range restriction
+                if(cur_distance <= sensor_range &
+                           cur_distance < min_distance ||
+                        (cur_distance == min_distance && distribution(gen))){
 
                     closest_landmark = map_landmarks.landmark_list[j];
                     min_distance = cur_distance;
@@ -184,7 +187,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
         }
 
-        // Step 4: multiply all the calculated weights togehter to get the final weight. 
+        // Step 4: multiply all the calculated weights together to get the final weight.
         sum_weights += weight;
         particles[i].weight = weight;
     }
