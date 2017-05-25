@@ -140,6 +140,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
         double weight = 1.0;
 
+        double multiplier = 1 / (2.0 * M_PI * std_landmark[0] * std_landmark[1]);
+        double pow1 = pow(std_landmark[0], 2);
+        double pow2 = pow(std_landmark[1], 2);
+
+
         for (int j = 0; j < observations.size(); j++){
 
             // Step 1: transforms observed landmarks from the car's coordinates to the map's coordinates,
@@ -180,10 +185,18 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
             // Step 3: calculate the weight of a single observed landmark in respect to the closest landmark if
             // particle[i] is where the car is.
+            // Suggestion by Udacity : There are elements of this calculation (such as the denominator) that
+            // don't depend on the particle, landmark, or observation. I suggest calculating them separately
+            // outside of the particle loop and reusing these values.
 
-            weight *= 1 / (2.0 * M_PI * std_landmark[0] * std_landmark[1]) *
-                      exp(-0.5 * (pow((closest_landmark.x_f - obs_landmark.x), 2) / pow(std_landmark[0], 2) +
-                                  pow((closest_landmark.y_f - obs_landmark.y), 2) / pow(std_landmark[1], 2)));
+//            weight *= 1 / (2.0 * M_PI * std_landmark[0] * std_landmark[1]) *
+//                      exp(-0.5 * (pow((closest_landmark.x_f - obs_landmark.x), 2) / pow(std_landmark[0], 2) +
+//                                  pow((closest_landmark.y_f - obs_landmark.y), 2) / pow(std_landmark[1], 2)));
+
+            weight *= multiplier *
+                      exp(-0.5 * (pow((closest_landmark.x_f - obs_landmark.x), 2) / pow1 +
+                                  pow((closest_landmark.y_f - obs_landmark.y), 2) / pow2));
+
 
         }
 
